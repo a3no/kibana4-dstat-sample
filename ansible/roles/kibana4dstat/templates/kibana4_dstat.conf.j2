@@ -1,0 +1,22 @@
+<source>
+  @type dstat
+  tag dstat
+  option  -ams
+  delay 5
+</source>
+
+<match dstat>
+  @type flatten_hash
+  add_tag_prefix flattened.
+  separator _
+</match>
+
+<match flattened.dstat>
+  @type elasticsearch
+  type_name       dstat
+  host            localhost
+  port            9200
+  logstash_format true
+  logstash_prefix dstat
+  flush_interval  3s
+</match>

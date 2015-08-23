@@ -1,0 +1,26 @@
+---
+- name: install dstat
+  yum: name=dstat
+
+- name: install gem
+  gem: name={{ item }} state=present executable=/usr/sbin/td-agent-gem user_install=no
+  with_items:
+    - fluent-plugin-elasticsearch
+    - fluent-plugin-flatten-hash
+    - fluent-plugin-dstat
+
+- name: copy log config
+  template: src={{ item }}.conf.j2 dest=/etc/td-agent/conf.d/{{ item }}.conf
+  notify: restart td-agent
+  with_items:
+    - kibana4_dstat
+
+- name: copy template config
+  copy: src={{ item }}.json dest=/tmp/{{ item }}.json
+  with_items:
+    - template_dstat
+
+- name: execute snapshot
+  command: curl -XPOST 'http://localhost:9200/_template/{{ item }}' -d @/tmp/{{ item }}.json
+  with_items:
+    - template_dstat

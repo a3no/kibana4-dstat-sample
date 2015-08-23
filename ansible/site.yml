@@ -1,0 +1,14 @@
+- hosts: localhost
+  connection: local
+  sudo: yes
+  vars:
+    - jdk_version: 1.8.0
+    - es_repo_version: 1.7
+    - es_version: 1.7.1-1
+    - kibana_version: 4.1.0
+  roles:
+    - jdk
+    - elasticsearch
+    - kibana4
+    - td-agent2
+    - kibana4dstat

@@ -1,0 +1,25 @@
+---
+- name: download kibana4
+  get_url: url="https://download.elastic.co/kibana/kibana/kibana-{{ kibana_version }}-linux-x64.tar.gz" dest=/opt
+  register: downloaded
+
+- name: expand kibana4
+  unarchive: src=/opt/kibana-{{ kibana_version }}-linux-x64.tar.gz dest=/opt/ owner=root group=root copy=no
+  when: downloaded.changed
+
+- name: stat /opt/kibana
+  stat: path=/opt/kibana
+  register: kibana_stat
+
+- name: delete /opt/kibana
+  file: path=/opt/kibana state=absent
+  when: kibana_stat.stat.exists and downloaded.changed
+
+- name: create link to kibana4 dir
+  file: src=/opt/kibana-{{ kibana_version }}-linux-x64/ dest=/opt/kibana state=link
+
+- name: copy init file
+  copy: src=kibana_init.sh dest=/etc/init.d/kibana mode=0755
+
+- name: start kibana
+  service: name=kibana state=started enabled=yes

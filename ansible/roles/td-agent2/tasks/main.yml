@@ -1,0 +1,19 @@
+---
+- name: Import rpm key
+  rpm_key: state=present key=http://packages.treasuredata.com/GPG-KEY-td-agent
+
+- name: Add yum repo
+  copy: src=td.repo dest=/etc/yum.repos.d/td.repo mode=0644 owner=root group=root
+
+- name: yum install td-agent
+  yum: name=td-agent
+
+- name: copy td-agent.conf
+  copy: src=td-agent.conf dest=/etc/td-agent/td-agent.conf
+  notify: restart td-agent
+
+- name: create conf dir
+  file: dest=/etc/td-agent/conf.d state=directory
+
+- name: Start td-agent
+  service: name=td-agent state=started enabled=yes
